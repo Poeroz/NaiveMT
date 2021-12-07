@@ -1,0 +1,2 @@
+MODEL_DIR=wmt_zhen
+CUDA_VISIBLE_DEVICES=3 python web/server.py --path $MODEL_DIR/model.pt $MODEL_DIR --beam 4 --source-lang zh --target-lang en --tokenizer moses --bpe subword_nmt --bpe-codes $MODEL_DIR/bpecodes

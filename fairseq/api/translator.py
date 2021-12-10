@@ -15,8 +15,8 @@ class NaiveTranslator():
         # set config
         parser = options.get_interactive_generation_parser()
         config_dir = os.path.join(fairseq_dir, "wmt_zhen")
-        sys.argv.append(config_dir)
-        args = options.parse_args_and_arch(parser)
+        input_args = [config_dir]
+        args = options.parse_args_and_arch(parser, input_args)
         args.source_lang = "zh"
         args.target_lang = "en"
         args.beam = 4

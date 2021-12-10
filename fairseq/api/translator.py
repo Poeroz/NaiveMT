@@ -1,3 +1,5 @@
+import os
+import sys
 import ast
 import numpy as np
 import torch
@@ -6,10 +8,23 @@ from fairseq import checkpoint_utils, options, tasks, utils
 from fairseq.dataclass.utils import convert_namespace_to_omegaconf
 from fairseq_cli.generate import get_symbols_to_strip_from_output
 
+fairseq_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 class NaiveTranslator():
-    def __init__(self, cfg):
-        self.cfg = cfg
+    def __init__(self):
+        # set config
+        parser = options.get_interactive_generation_parser()
+        config_dir = os.path.join(fairseq_dir, "wmt_zhen")
+        sys.argv.append(config_dir)
+        args = options.parse_args_and_arch(parser)
+        args.source_lang = "zh"
+        args.target_lang = "en"
+        args.beam = 4
+        args.path = os.path.join(config_dir, "model.pt")
+        args.tokenizer = "moses"
+        args.bpe = "subword_nmt"
+        args.bpe_codes = os.path.join(config_dir, "bpecodes")
+        self.cfg = convert_namespace_to_omegaconf(args)
 
         # set batch size
         self.cfg.dataset.batch_size = 1
@@ -110,16 +125,6 @@ class NaiveTranslator():
         return detok_hypo_str
 
 
-def cli_main():
-    parser = options.get_interactive_generation_parser()
-    args = options.parse_args_and_arch(parser)
-    translator = NaiveTranslator(convert_namespace_to_omegaconf(args))
-
-    # start server ...
-    # when a post request arrives, just call `translator.translate(input)` to get the translation and return the result.
-    # for example, call `translator.translate("这个翻译系统怎么样？")`, you will get:
-    # > Source: 这个翻译系统怎么样？
-    # > Target: What about this translation system?
-
 if __name__ == "__main__":
-    cli_main()
+    translator = NaiveTranslator()
+    translator.translate("这个翻译系统怎么样？")
